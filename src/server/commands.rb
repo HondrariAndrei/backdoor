@@ -42,7 +42,7 @@ module Commands
             if name.empty? then
                 return "File: #{filename} does not exist."
             else
-                if File.readable? then
+                if File.readable?(name) then
                     file = File.open(name, "rb")
                     return file.read
                 else
@@ -53,7 +53,7 @@ module Commands
             if !File.exist?(filename) then
                 return "File: #{filename} does not exist."
             end
-            if File.readable? then
+            if File.readable?(filename) then
                 file = File.open(filename, "rb")
                 return file.read
             else

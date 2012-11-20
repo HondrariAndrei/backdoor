@@ -40,14 +40,6 @@ Where [options] are:
     opt :key, "Secret Key", :short => "k", :type => :string, :default => "secretkey" # string --key <s>, default secretkey
 end
 
-def decode(hash)
-    return Base64::decode64(hash)
-end
-
-def encode(hash)
-    return Base64::encode64(hash)
-end
-
 def wait_cmd_response
     cap = PacketFu::Capture.new(:iface => @opts[:iface], :start => true,
                 :promisc => true)
@@ -87,6 +79,7 @@ def wait_get_response(cmd)
             
             if packet.tcp_dst == @opts[:dport] then
                 if packet.tcp_flags.fin == 1 then
+                    puts "Data written in: " + filename
                     file.close
                     return
                 else

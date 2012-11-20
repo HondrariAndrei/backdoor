@@ -61,9 +61,6 @@ class Backdoor
                 end
             end # if
         end # if
-        
-        # Run get command
-        #if packet.tcp_flags.syn == 1 and packet.tcp_flags.psh == 1 then
     end # process_packet
     
     def send_data(data, packet)      

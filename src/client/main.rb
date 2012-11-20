@@ -88,9 +88,9 @@ def wait_get_response(cmd)
                 if packet.tcp_flags.fin == 1 then
                     return
                 else
-                    file.write(packet.tcp_win.chr)
-                end
-            end
+                    file.putc(packet.tcp_win.chr)
+                end # fin
+            end # dport
         end # can_parse?
     end # cap
 end

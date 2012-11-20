@@ -92,7 +92,7 @@ def prompt
                 tcp = PacketFu::TCPPacket.new
                 
                 tcp.eth_saddr = cfg[:eth_saddr]
-                tcp.eth_daddr = cfg[:eth_daddr]
+                #tcp.eth_daddr = cfg[:eth_daddr]
                 tcp.tcp_src = rand(0xfff - 1024) + 1024
                 tcp.tcp_dst = @opts[:sport]
                 tcp.tcp_flags.syn = 1;
@@ -108,7 +108,7 @@ def prompt
             tcp_fin = PacketFu::TCPPacket.new
             
             tcp_fin.eth_saddr = cfg[:eth_saddr]
-            tcp_fin.eth_daddr = cfg[:eth_daddr]
+            #tcp_fin.eth_daddr = cfg[:eth_daddr]
             tcp_fin.tcp_src = rand(0xfff - 1024) + 1024
             tcp_fin.tcp_dst = @opts[:sport]
             tcp_fin.tcp_flags.fin = 1;

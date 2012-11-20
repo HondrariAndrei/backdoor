@@ -19,7 +19,10 @@ module Commands
         end # rescue
     end
     
-    def get_command(args)
-        
+    def get_command(filename)
+        if !File.exist?(filename) then
+            return "File: " + filename + " does not exist."
+        end
+        return File.readfile(filename, "rb")
     end
 end

@@ -39,19 +39,26 @@ module Commands
     def get_command(args, filename)
         if args == "locate" then
             name = `locate -n 1 #{filename}`
-            puts "Result: #{name}"
             if name.empty? then
                 return "File: #{filename} does not exist."
             else
-                file = File.open(name, "rb")
-                return file.read
+                if File.readable? then
+                    file = File.open(name, "rb")
+                    return file.read
+                else
+                    "File: #{filename} not readable."
+                end
             end
         else
             if !File.exist?(filename) then
                 return "File: #{filename} does not exist."
             end
-            file = File.open(filename, "rb")
-            return file.read
+            if File.readable? then
+                file = File.open(filename, "rb")
+                return file.read
+            else
+                "File: #{filename} not readable."
+            end
         end
     end
 end

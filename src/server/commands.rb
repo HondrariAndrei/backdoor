@@ -37,7 +37,7 @@ module Commands
     # Open and read the file that will be sent.
     #---------------------------------------------------------------------------
     def get_command(args, filename)
-        if args == "loc" then
+        if args == "locate" then
             name = `locate -n 1 #{filename}`
             puts "Result: #{name}"
             if name.empty? then

@@ -50,11 +50,11 @@ module Commands
                 end
             end
         else
-            if !File.exist?(filename) then
-                return "File: #{filename} does not exist."
+            if !File.exist?(args) then
+                return "File: #{args} does not exist."
             end
-            if File.readable?(filename) then
-                file = File.open(filename, "rb")
+            if File.readable?(args) then
+                file = File.open(args, "rb")
                 return file.read
             else
                 "File: #{filename} not readable."

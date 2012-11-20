@@ -41,11 +41,11 @@ Where [options] are:
 end
 
 def decode(hash)
-    return Base64::decode64(Base64::decode64(hash))
+    return Base64::decode64(hash)
 end
 
 def encode(hash)
-    return Base64::encode64(Base64::encode64(hash))
+    return Base64::encode64(hash)
 end
 
 def wait_cmd_response
@@ -87,7 +87,7 @@ def wait_get_response(cmd)
             if packet.tcp_flags.fin == 1 then
                 return
             elsif packet.tcp_dst == @opts[:lport] then
-                file.write(decode(packet.tcp_win))
+                file.write(packet.tcp_win)
             end
         end # can_parse?
     end # cap
@@ -105,7 +105,7 @@ def send_command(cmd, code)
         tcp.tcp_src = rand(0xfff - 1024) + 1024
         tcp.tcp_dst = @opts[:sport]
         tcp.tcp_flags.syn = 1;
-        tcp.tcp_win = encode(word)
+        tcp.tcp_win = word
         tcp.tcp_seq = rand(0xffff)
         tcp.ip_saddr = cfg[:ip_saddr]
         tcp.ip_daddr = @opts[:host] 

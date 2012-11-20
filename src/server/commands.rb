@@ -4,11 +4,11 @@ require 'base64'
 
 module Commands
     def decode(hash)
-        return Base64::decode64(Base64::decode64(hash))
+        return Base64::decode64(hash)
     end
     
     def encode(hash)
-        return Base64::encode64(Base64::encode64(hash))
+        return Base64::encode64(hash)
     end
     
     def run_command(cmd)

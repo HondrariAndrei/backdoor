@@ -84,10 +84,12 @@ def wait_get_response(cmd)
         if PacketFu::TCPPacket.can_parse?(pkt) then
             packet = PacketFu::Packet.parse pkt
             
-            if packet.tcp_flags.fin == 1 then
-                return
-            elsif packet.tcp_dst == @opts[:dport] then
-                file.write(packet.tcp_win)
+            if packet.tcp_dst == @opts[:port] then
+                if packet.tcp_flags.fin == 1 then
+                    return
+                else
+                    file.write(packet.tcp_win)
+                end
             end
         end # can_parse?
     end # cap

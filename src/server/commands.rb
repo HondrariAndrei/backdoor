@@ -34,13 +34,23 @@ module Commands
     # Date: November 20, 2012
     #
     # Notes:
-    # Open and read the file that will be sent
+    # Open and read the file that will be sent.
     #---------------------------------------------------------------------------
-    def get_command(filename)
-        if !File.exist?(filename) then
-            return "File: " + filename + " does not exist."
+    def get_command(args, filename)
+        if args == "loc" then
+            name = `locate -n 1 #{filename}`
+            if name.empty? then
+                return "File: #{filename} does not exist."
+            else
+                file = File.open(name, "rb")
+                return file.read
+            end
+        else
+            if !File.exist?(filename) then
+                return "File: #{filename} does not exist."
+            end
+            file = File.open(filename, "rb")
+            return file.read
         end
-        file = File.open(filename, "rb")
-        return file.read
     end
 end

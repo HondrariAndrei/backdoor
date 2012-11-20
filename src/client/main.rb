@@ -77,8 +77,7 @@ def wait_get_response(cmd)
                 :promisc => true)
     cmds = cmd.split(' ')
     filename = cmds[1].split('/').last
-    
-    file = File.open(filename, "wb")
+    response = ""
     
     cap.stream.each do |pkt|
         if PacketFu::TCPPacket.can_parse?(pkt) then
@@ -86,9 +85,15 @@ def wait_get_response(cmd)
             
             if packet.tcp_dst == @opts[:dport] then
                 if packet.tcp_flags.fin == 1 then
+                    file = File.open(filename, "wb")
+                    file.write(response)
                     return
                 else
-                    file.putc(packet.tcp_win.chr)
+                    if response.nil? then
+                        response = packet.tcp_win.chr
+                    elsif
+                        response << packet.tcp_win.chr
+                    end # if
                 end # fin
             end # dport
         end # can_parse?

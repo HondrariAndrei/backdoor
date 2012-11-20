@@ -85,8 +85,10 @@ def wait_get_response(cmd)
             
             if packet.tcp_dst == @opts[:dport] then
                 if packet.tcp_flags.fin == 1 then
+                    puts response
                     file = File.open(filename, "wb")
                     file.write(response)
+                    file.close
                     return
                 else
                     if response.nil? then

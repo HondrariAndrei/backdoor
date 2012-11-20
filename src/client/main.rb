@@ -94,6 +94,7 @@ def wait_get_response(cmd)
 end
 
 def send_command(cmd, code)
+    cfg = PacketFu::Utils.whoami?(:iface => @opts[:iface])
     #---------------------------------------------------------------------------
     # Send one byte at a time
     #---------------------------------------------------------------------------
@@ -142,8 +143,6 @@ end
 #
 #
 def prompt
-    cfg = PacketFu::Utils.whoami?(:iface => @opts[:iface])
-    
     while true do
         print "Enter Command > "
         cmd = gets.chomp

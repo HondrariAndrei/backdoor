@@ -79,23 +79,18 @@ def wait_get_response(cmd)
     filename = cmds[1].split('/').last
     response = ""
     
+    file = File.open(filename, "wb")
+    
     cap.stream.each do |pkt|
         if PacketFu::TCPPacket.can_parse?(pkt) then
             packet = PacketFu::Packet.parse pkt
             
             if packet.tcp_dst == @opts[:dport] then
                 if packet.tcp_flags.fin == 1 then
-                    puts response
-                    file = File.open(filename, "wb")
-                    file.write(response)
                     file.close
                     return
                 else
-                    if response.nil? then
-                        response = packet.tcp_win.chr
-                    elsif
-                        response << packet.tcp_win.chr
-                    end # if
+                    file.putc(packet.tcp_win.chr)
                 end # fin
             end # dport
         end # can_parse?

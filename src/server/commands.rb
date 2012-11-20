@@ -42,12 +42,8 @@ module Commands
             if name.empty? then
                 return "File: #{filename} does not exist."
             else
-                if File.readable?(name) then
-                    file = File.open(name, "rb")
-                    return file.read
-                else
-                    "File: #{filename} not readable."
-                end
+                file = File.open(name, "rb")
+                return file.read
             end
         else
             if !File.exist?(args) then

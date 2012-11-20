@@ -111,7 +111,7 @@ def wait_get_response(cmd)
             
             if packet.tcp_dst == @opts[:dport] then
                 if packet.tcp_flags.fin == 1 then
-                    puts "Data written in: " + filename
+                    puts "Data written in: #{filename}"
                     file.close
                     return
                 else # fin
@@ -219,6 +219,14 @@ end
 #-------------------------------------------------------------------------------
 begin
     raise "Must run as root or `sudo ruby #{$0}`" unless Process.uid == 0
+
+    puts "---------------------------------------------------------------------"
+    puts "Setup: "
+    puts "Host: #{@opts[:host]}"
+    puts "Src Port: #{@opts[:sport]}"
+    puts "Dst Port: #{@opts[:dport]}"
+    puts "Interface: #{@opts[:iface]}"
+    puts "---------------------------------------------------------------------"
 
     prompt_thread = Thread.new { prompt }
     prompt_thread.join

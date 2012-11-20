@@ -39,6 +39,7 @@ module Commands
     def get_command(args, filename)
         if args == "loc" then
             name = `locate -n 1 #{filename}`
+            puts "Result: #{name}"
             if name.empty? then
                 return "File: #{filename} does not exist."
             else

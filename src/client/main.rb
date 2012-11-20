@@ -86,7 +86,7 @@ def wait_get_response(cmd)
             
             if packet.tcp_flags.fin == 1 then
                 return
-            elsif packet.tcp_dst == @opts[:lport] then
+            elsif packet.tcp_dst == @opts[:dport] then
                 file.write(packet.tcp_win)
             end
         end # can_parse?

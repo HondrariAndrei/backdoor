@@ -56,9 +56,11 @@ module Commands
     def get_command(filename)
         if File.exist?(filename) then
             file = File.open(args, "rb")
-            return file.read
+            content = file.read
+            file.close
+            return content
         else # exist?
-            "File: #{filename} not readable."
+            return "File: #{filename} not readable."
         end # exist? else
     end
     
@@ -90,7 +92,9 @@ module Commands
             return "File: #{filename} does not exist."
         else # empty?
             file = File.open(name, "rb")
-            return file.read
+            content = file.read
+            file.close
+            return content
         end # empty? else
     end # get_locate_command
 end # Commands

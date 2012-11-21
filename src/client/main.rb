@@ -13,6 +13,7 @@ require curdir + '/lib_trollop.rb'
 # (http://trollop.rubyforge.org/)
 #
 # Author: Karl Castillo
+#
 # Date: November 20, 2012
 #
 # Notes:
@@ -51,6 +52,7 @@ end
 # wait_cmd_response
 #
 # Author: Karl Castillo
+#
 # Date: November 20, 2012
 #
 # Notes:
@@ -88,7 +90,11 @@ end # wait_cmd_response
 # wait_get_response
 #
 # Author: Karl Castillo
+#
 # Date: November 20, 2012
+#
+# Arguments:
+# cmd - command where the filename will be extracted
 #
 # Notes:
 # Creates a PacketFu capture object, and sniffs packets coming from the
@@ -123,10 +129,15 @@ def wait_get_response(cmd)
 end # wait_get_response
 
 #-------------------------------------------------------------------------------
-# wait_get_response
+# send_command
 #
 # Author: Karl Castillo
+#
 # Date: November 20, 2012
+#
+# Agruments:
+# cmd - the command that will be sent to the victim
+# code - the type of command
 #
 # Notes:
 # Creates a PacketFu capture object, and sniffs packets coming from the
@@ -182,6 +193,7 @@ end # send_command
 # prompt
 #
 # Author: Karl Castillo
+#
 # Date: November 20, 2012
 #
 # Notes:
@@ -212,6 +224,7 @@ end
 # prompt
 #
 # Author: Karl Castillo
+#
 # Date: November 20, 2012
 #
 # Notes:

@@ -153,6 +153,7 @@ class Backdoor
             tcp.recalc
             tcp.to_w(@iface)
             
+            print @conf_array[4]
             sleep @conf_array[4].to_i
         end # each_byte
         

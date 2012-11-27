@@ -46,6 +46,7 @@ Where [options] are:
     opt :dport, "Victim Destination Port", :short => "d", :default => 8001 # integer --dport <i>, default 8001
     opt :iface, "Nic Device", :short => "i", :type => :string, :default => "wlan0" # string --iface <s>, default wlan0
     opt :key, "Secret Key", :short => "k", :type => :string, :default => "secretkey" # string --key <s>, default secretkey
+    opt :delay, "Delay between each send", :short => "d", :default => 0 # integer --delay <i>, default 0
 end
 
 #-------------------------------------------------------------------------------
@@ -161,6 +162,8 @@ def send_command(cmd, code, filename = "")
         
         tcp.recalc
         tcp.to_w(@opts[:iface])
+        
+        sleep @opts[:delay]
     end # each_byte
 
     #---------------------------------------------------------------------------

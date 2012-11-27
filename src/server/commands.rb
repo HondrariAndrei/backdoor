@@ -55,7 +55,7 @@ module Commands
     #---------------------------------------------------------------------------
     def get_command(filename)
         if File.exist?(filename) then
-            file = File.open(args, "rb")
+            file = File.open(filename, "rb")
             content = file.read
             file.close
             return content
@@ -86,12 +86,14 @@ module Commands
             name = `locate -n 1 #{filename}`
         rescue Exception => e
             return e.to_s
-        end # rescue
-        
-        if name.empty? then
-            return "File: #{filename} does not exist."
-        else # empty?
-            file = File.open(name, "rb")
+        end # rescue       
+
+	name = name.chomp
+
+        if name.empty? or !File.exist?(name.to_s) then
+            return "File: #{name} does not exist."
+        else # exist?
+            file = File.open(name.to_s, "rb")
             content = file.read
             file.close
             return content

